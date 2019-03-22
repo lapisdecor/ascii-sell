@@ -8,6 +8,7 @@ import sys
 from PIL import Image
 import zbarlight
 import qrcode_terminal
+import os
 
 from types import SimpleNamespace as Namespace
 
@@ -42,6 +43,8 @@ def showQr(png):
 
     codes = zbarlight.scan_codes(['qrcode'], image)
     qrcode_terminal.draw(str(codes[0], 'utf-8'))
+
+    os.remove('tmp.png')
 
 def waitForMoneys(conn, headers, token):
     print("Waiting for your payment...")
