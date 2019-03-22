@@ -46,13 +46,14 @@ def waitForMoneys(conn, headers, token):
         res = conn.getresponse().read().decode('utf-8')
         data = json.loads(res, object_hook=lambda d: Namespace(**d))
 
+        # print(res)
+
         if (data.statusCode == "000"):
             break
         if (data.statusCode == "101"):
             print("Payment timed out")
             exit(1)
         else:
-            # print(res)
             time.sleep(5)
 
     return data.qrCodePaymentToken
@@ -64,6 +65,8 @@ def finishPayment(conn, headers, token):
 
     res = conn.getresponse().read().decode('utf-8')
     data = json.loads(res, object_hook=lambda d: Namespace(**d))
+
+    # print(res)
 
     if (data.statusCode == "APPR"):
         print("Done!")
