@@ -4,6 +4,7 @@ import json
 import base64
 import subprocess
 import time
+import sys
 
 from types import SimpleNamespace as Namespace
 
@@ -71,7 +72,7 @@ def finishPayment(conn, headers, token):
         exit(1)
 
 conn, headers = setupSibs()
-sibsResp = genQR(conn, headers, "100")
+sibsResp = genQR(conn, headers, sys.argv[1])
 showQr(base64.decodestring(bytearray(sibsResp.qrCodeImage, 'utf-8')))
 paymentToken = waitForMoneys(conn, headers, sibsResp.qrCodeToken)
 finishPayment(conn, headers, paymentToken)
