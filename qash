@@ -3,10 +3,11 @@ import http.client
 import json
 import base64
 import subprocess
+import time
 
 from types import SimpleNamespace as Namespace
 
-def genQR(payload):
+def setupSibs():
     conn = http.client.HTTPSConnection("site1.sibsapimarket.com:8444")
 
     with open('.apikey', 'r') as key_file:
@@ -17,7 +18,11 @@ def genQR(payload):
         'content-type': "application/json",
         'accept': "application/json"
         }
+    
+    return conn, headers
 
+def genQR(conn, headers, amount):
+    payload = "{\"amount\":{\"value\":" + amount + ",\"description\":\"qash usage\"}}"
     conn.request("POST", "/pixelscamp/apimarket/mbwaypurchases/qrcode-pixelscamp/v1/generate", payload, headers)
 
     res = conn.getresponse().read().decode('utf-8')
@@ -29,6 +34,25 @@ def showQr(png):
         image_file.write(png)
     subprocess.call(('xdg-open', 'tmp.png'))
 
-sibsResp = genQR("{\"amount\":{\"value\":10,\"description\":\"qash usage\"}}")
-png = base64.decodestring(bytearray(sibsResp.qrCodeImage, 'utf-8'))
-showQr(png)
+def waitForMoneys(conn, headers, token):
+    print("Waiting for your payment...")
+
+    payload = "{\"qrCodeToken\":\"" + token + "\"}"
+
+    while True:
+        conn.request("POST", "/pixelscamp/apimarket/mbwaypurchases/qrcode-pixelscamp/v1/inquiry", payload, headers)
+
+        res = conn.getresponse().read().decode('utf-8')
+        data = json.loads(res, object_hook=lambda d: Namespace(**d))
+
+        if (data.statusCode == "000"):
+            print("Done!")
+            break
+        else:
+            time.sleep(5)
+
+conn, headers = setupSibs()
+sibsResp = genQR(conn, headers, "100")
+showQr(base64.decodestring(bytearray(sibsResp.qrCodeImage, 'utf-8')))
+waitForMoneys(conn, headers, sibsResp.qrCodeToken)
+
