@@ -5,6 +5,9 @@ import base64
 import subprocess
 import time
 import sys
+from PIL import Image
+import zbarlight
+import qrcode_terminal
 
 from types import SimpleNamespace as Namespace
 
@@ -33,7 +36,12 @@ def genQR(conn, headers, amount):
 def showQr(png):
     with open('tmp.png', 'wb') as image_file:
         image_file.write(png)
-    subprocess.call(('xdg-open', 'tmp.png'))
+    with open('tmp.png', 'rb') as image_file:
+        image = Image.open(image_file)
+        image.load()
+
+    codes = zbarlight.scan_codes(['qrcode'], image)
+    qrcode_terminal.draw(str(codes[0], 'utf-8'))
 
 def waitForMoneys(conn, headers, token):
     print("Waiting for your payment...")
