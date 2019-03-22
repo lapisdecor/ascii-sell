@@ -46,13 +46,32 @@ def waitForMoneys(conn, headers, token):
         data = json.loads(res, object_hook=lambda d: Namespace(**d))
 
         if (data.statusCode == "000"):
-            print("Done!")
             break
+        if (data.statusCode == "101"):
+            print("Payment timed out")
+            exit(1)
         else:
+            # print(res)
             time.sleep(5)
+
+    return data.qrCodePaymentToken
+
+def finishPayment(conn, headers, token):
+    payload = "{\"qrCodePaymentToken\":\"" + token + "\"}"
+
+    conn.request("POST", "/pixelscamp/apimarket/mbwaypurchases/qrcode-pixelscamp/v1/purchase", payload, headers)
+
+    res = conn.getresponse().read().decode('utf-8')
+    data = json.loads(res, object_hook=lambda d: Namespace(**d))
+
+    if (data.statusCode == "APPR"):
+        print("Done!")
+    else:
+        print("Payment failed")
+        exit(1)
 
 conn, headers = setupSibs()
 sibsResp = genQR(conn, headers, "100")
 showQr(base64.decodestring(bytearray(sibsResp.qrCodeImage, 'utf-8')))
-waitForMoneys(conn, headers, sibsResp.qrCodeToken)
-
+paymentToken = waitForMoneys(conn, headers, sibsResp.qrCodeToken)
+finishPayment(conn, headers, paymentToken)
