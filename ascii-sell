@@ -1,15 +1,6 @@
 #!/usr/bin/env python
-import http.client
-import json
-import base64
-import subprocess
-import time
-import sys
+import http.client, json, base64, time, sys, os, io, zbarlight, qrcode_terminal
 from PIL import Image
-import zbarlight
-import qrcode_terminal
-import os
-
 from types import SimpleNamespace as Namespace
 
 def setupSibs():
@@ -35,16 +26,10 @@ def genQR(conn, headers, amount):
     return json.loads(res, object_hook=lambda d: Namespace(**d))
 
 def showQr(png):
-    with open('tmp.png', 'wb') as image_file:
-        image_file.write(png)
-    with open('tmp.png', 'rb') as image_file:
-        image = Image.open(image_file)
-        image.load()
+    image = Image.open(io.BytesIO(png))
 
     codes = zbarlight.scan_codes(['qrcode'], image)
     qrcode_terminal.draw(str(codes[0], 'utf-8'))
-
-    os.remove('tmp.png')
 
 def waitForMoneys(conn, headers, token):
     print("Waiting for your payment...")
