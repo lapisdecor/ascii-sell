@@ -32,3 +32,13 @@ Start the virtual environment with
 Install the requirements
 
 ```pip install requirements.txt```
+
+# Usage
+
+Change to the ascii-sell directory.
+
+Start a terminal and write:
+
+```./ascii-sell ammount```
+
+where ```ammount``` is the money you whant to charge.
