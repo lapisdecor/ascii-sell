@@ -2,6 +2,8 @@
 
 ascii-sell is an implementation of mbway qr-codes in ascii for use in low resolution terminals
 
+![demo gif](https://raw.githubusercontent.com/lapisdecor/ascii-sell/master/ascii-sell.gif)
+
 ## How it works
 
 We use python and the SIBS API. We call terminal commands to process the request for payment. We use the given image of the original QR code, get the token from the image and create a new QR code in ascii. The user will then scan the QR-code using MBWAY and the script completes the transaction.
